@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard Faturamento — Click Impresso</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #0e1117;
+    --card: #1a1f2e;
+    --card2: #242938;
+    --border: #2e3550;
+    --accent: #f5a623;
+    --accent2: #4f8ef7;
+    --accent3: #2ecc71;
+    --accent4: #e74c3c;
+    --text: #e8eaf0;
+    --muted: #8892a4;
+    --font: 'Segoe UI', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; }
+
+  header {
+    background: linear-gradient(135deg, #1a1f2e 0%, #0e1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 18px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  header h1 { font-size: 1.3rem; font-weight: 700; color: var(--accent); letter-spacing: 0.5px; }
+  header span { font-size: 0.8rem; color: var(--muted); }
+
+  .filters {
+    display: flex;
+    gap: 12px;
+    padding: 16px 32px;
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .filters label { font-size: 0.78rem; color: var(--muted); margin-right: 4px; }
+  .filters select {
+    background: var(--card2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 0.82rem;
+    cursor: pointer;
+    outline: none;
+  }
+  .filters select:focus { border-color: var(--accent); }
+  .filter-btn {
+    background: var(--accent);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 18px;
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-left: auto;
+  }
+  .filter-btn:hover { opacity: 0.85; }
+
+  main { padding: 24px 32px; }
+
+  /* KPI CARDS */
+  .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px; }
+  .kpi {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
+    position: relative;
+    overflow: hidden;
+  }
+  .kpi::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 4px; height: 100%;
+    background: var(--accent-color, var(--accent));
+    border-radius: 12px 0 0 12px;
+  }
+  .kpi-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 8px; }
+  .kpi-value { font-size: 1.6rem; font-weight: 800; color: var(--text); }
+  .kpi-sub { font-size: 0.75rem; color: var(--muted); margin-top: 4px; }
+  .kpi-badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    margin-top: 6px;
+  }
+  .badge-up { background: rgba(46,204,113,0.15); color: var(--accent3); }
+  .badge-down { background: rgba(231,76,60,0.15); color: var(--accent4); }
+
+  /* GRID DE GRÁFICOS */
+  .charts-grid { display: grid; gap: 20px; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3 { grid-template-columns: 2fr 1fr; }
+  .row-full { grid-template-columns: 1fr; }
+
+  .chart-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 24px;
+  }
+  .chart-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .chart-sub { font-size: 0.72rem; color: var(--muted); margin-bottom: 16px; }
+  .chart-wrap { position: relative; }
+
+  /* TABELA */
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+  th { color: var(--muted); font-weight: 600; text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.6px; padding: 8px 12px; border-bottom: 1px solid var(--border); text-align: left; }
+  td { padding: 9px 12px; border-bottom: 1px solid rgba(46,53,80,0.5); }
+  tr:hover td { background: rgba(79,142,247,0.04); }
+  .bar-mini { height: 6px; background: var(--border); border-radius: 3px; margin-top: 4px; }
+  .bar-fill { height: 6px; background: var(--accent); border-radius: 3px; transition: width 0.5s; }
+  .tag-up { color: var(--accent3); font-weight: 700; }
+  .tag-down { color: var(--accent4); font-weight: 700; }
+  .tag-neutral { color: var(--muted); }
+
+  footer { text-align: center; padding: 24px; color: var(--muted); font-size: 0.72rem; border-top: 1px solid var(--border); margin-top: 24px; }
+
+  @media (max-width: 900px) {
+    main { padding: 16px; }
+    .row-2, .row-3 { grid-template-columns: 1fr; }
+    .filters { padding: 12px 16px; }
+    header { padding: 14px 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>⚡ Click Impresso — Dashboard de Faturamento</h1>
+    <span>Dados atualizados até Junho/2026 · 17 Lojas · Histórico desde 2010</span>
+  </div>
+  <span id="last-update" style="color:var(--accent);font-size:0.8rem;font-weight:700;"></span>
+</header>
+
+<div class="filters">
+  <div>
+    <label>Período:</label>
+    <select id="filtro-ano" onchange="aplicarFiltros()">
+      <option value="todos">Todos os anos</option>
+      <option value="2026">2026</option>
+      <option value="2025" selected>2025</option>
+      <option value="2024">2024</option>
+      <option value="2023">2023</option>
+      <option value="2022">2022</option>
+      <option value="historico">Histórico completo</option>
+    </select>
+  </div>
+  <div>
+    <label>Loja:</label>
+    <select id="filtro-loja" onchange="aplicarFiltros()">
+      <option value="todas">Todas as lojas</option>
+    </select>
+  </div>
+  <button class="filter-btn" onclick="resetFiltros()">↺ Resetar</button>
+</div>
+
+<main>
+  <!-- KPIs -->
+  <div class="kpis">
+    <div class="kpi" style="--accent-color: var(--accent)">
+      <div class="kpi-label">Faturamento Total</div>
+      <div class="kpi-value" id="kpi-fat">R$ 59,3M</div>
+      <div class="kpi-sub">Acumulado histórico</div>
+      <span class="kpi-badge badge-up" id="kpi-fat-var">↑ +22,8% vs 2024</span>
+    </div>
+    <div class="kpi" style="--accent-color: var(--accent2)">
+      <div class="kpi-label">Pedidos Realizados</div>
+      <div class="kpi-value" id="kpi-qtd">567.631</div>
+      <div class="kpi-sub">Total histórico</div>
+    </div>
+    <div class="kpi" style="--accent-color: var(--accent3)">
+      <div class="kpi-label">Ticket Médio</div>
+      <div class="kpi-value" id="kpi-ticket">R$ 104,42</div>
+      <div class="kpi-sub">Por pedido</div>
+    </div>
+    <div class="kpi" style="--accent-color: #9b59b6">
+      <div class="kpi-label">Lojas Ativas</div>
+      <div class="kpi-value" id="kpi-lojas">17</div>
+      <div class="kpi-sub">Unidades no grupo</div>
+    </div>
+    <div class="kpi" style="--accent-color: var(--accent4)">
+      <div class="kpi-label">Melhor Mês (2025)</div>
+      <div class="kpi-value">R$ 1,52M</div>
+      <div class="kpi-sub">Outubro/2025</div>
+      <span class="kpi-badge badge-up">↑ Recorde anual</span>
+    </div>
+  </div>
+
+  <!-- LINHA 1: Evolução histórica + Pizza por loja -->
+  <div class="charts-grid row-3" style="margin-bottom:20px;">
+    <div class="chart-card">
+      <div class="chart-title">Evolução de Faturamento Anual</div>
+      <div class="chart-sub">Crescimento acumulado 2010–2026</div>
+      <div class="chart-wrap"><canvas id="chartAnual" height="220"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2px;">
+        <div class="chart-title">Participação por Loja</div>
+        <select id="pizza-ano" onchange="renderPizza()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:0.78rem;cursor:pointer;outline:none;">
+          <option value="todos">Histórico</option>
+          <option value="2026">2026</option>
+          <option value="2025" selected>2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+          <option value="2021">2021</option>
+          <option value="2020">2020</option>
+          <option value="2019">2019</option>
+          <option value="2018">2018</option>
+          <option value="2017">2017</option>
+          <option value="2016">2016</option>
+        </select>
+      </div>
+      <div class="chart-sub">% do faturamento por ano selecionado</div>
+      <div class="chart-wrap"><canvas id="chartPizza" height="220"></canvas></div>
+    </div>
+  </div>
+
+  <!-- LINHA 2: Mensal recente + Comparativo 2024 vs 2025 -->
+  <div class="charts-grid row-2" style="margin-bottom:20px;">
+    <div class="chart-card">
+      <div class="chart-title">Faturamento Mensal</div>
+      <div class="chart-sub">Jan/2024 a Jun/2026 — todas as lojas</div>
+      <div class="chart-wrap"><canvas id="chartMensal" height="240"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Comparativo: 2024 vs 2025</div>
+      <div class="chart-sub">Faturamento anual por loja</div>
+      <div class="chart-wrap"><canvas id="chartComp" height="240"></canvas></div>
+    </div>
+  </div>
+
+  <!-- LINHA 3: Tabela ranking -->
+  <div class="charts-grid row-full">
+    <div class="chart-card">
+      <div class="chart-title">Ranking de Lojas — Faturamento Histórico</div>
+      <div class="chart-sub">Valor total, quantidade de pedidos, ticket médio e variação último mês</div>
+      <table id="tabela-lojas">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Loja</th>
+            <th>Faturamento Total</th>
+            <th>% do Total</th>
+            <th>Pedidos</th>
+            <th>Ticket Médio</th>
+            <th>Var. Último Mês</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-lojas"></tbody>
+      </table>
+    </div>
+  </div>
+</main>
+
+<footer>Click Impresso · Dashboard gerado automaticamente · Dados: Faturamento_ClickImpresso.xlsx</footer>
+
+<script>
+const DATA = {
+  por_loja: [{"Loja":"Site/Protasio","Valor":15310786.73,"Qtd":76589},{"Loja":"Nilo","Valor":15043382.36,"Qtd":143922},{"Loja":"Wenceslau","Valor":4900616.57,"Qtd":52184},{"Loja":"Andradas","Valor":4422394.42,"Qtd":52089},{"Loja":"AssisBrasil","Valor":4334323.08,"Qtd":45272},{"Loja":"Goethe","Valor":2833095.36,"Qtd":26227},{"Loja":"Anita","Valor":2507122.53,"Qtd":35376},{"Loja":"Shopping Total","Valor":2451085.31,"Qtd":34643},{"Loja":"Canoas","Valor":2264761.36,"Qtd":24566},{"Loja":"Ipiranga","Valor":1537035.04,"Qtd":21328},{"Loja":"Cachoeirinha","Valor":915490.32,"Qtd":13979},{"Loja":"Azenha","Valor":728042.17,"Qtd":10197},{"Loja":"Osvaldo","Valor":674595.61,"Qtd":12555},{"Loja":"Gravataí","Valor":623572.75,"Qtd":11422},{"Loja":"Novo Hamburgo","Valor":434528.31,"Qtd":3344},{"Loja":"Otavio","Valor":85849.17,"Qtd":2651},{"Loja":"São Leopoldo","Valor":46291.64,"Qtd":955},{"Loja":"Cristóvão","Valor":15655.38,"Qtd":332}],
+  por_ano: [{"Ano":2010,"Valor_RS":5252.28},{"Ano":2011,"Valor_RS":38234.13},{"Ano":2012,"Valor_RS":74501.42},{"Ano":2013,"Valor_RS":335545.4},{"Ano":2014,"Valor_RS":745294.31},{"Ano":2015,"Valor_RS":869396.45},{"Ano":2016,"Valor_RS":1875774.81},{"Ano":2017,"Valor_RS":1809396.03},{"Ano":2018,"Valor_RS":1733235.51},{"Ano":2019,"Valor_RS":1747526.13},{"Ano":2020,"Valor_RS":1605280.43},{"Ano":2021,"Valor_RS":2776192.98},{"Ano":2022,"Valor_RS":5845391.53},{"Ano":2023,"Valor_RS":8484765.31},{"Ano":2024,"Valor_RS":11354134.84},{"Ano":2025,"Valor_RS":13938918.73},{"Ano":2026,"Valor_RS":6034397.44}],
+  recente: [{"Periodo_ISO":"2024-01","Valor_RS":690369.54},{"Periodo_ISO":"2024-02","Valor_RS":674606.9},{"Periodo_ISO":"2024-03","Valor_RS":868352.14},{"Periodo_ISO":"2024-04","Valor_RS":905393.0},{"Periodo_ISO":"2024-05","Valor_RS":466717.31},{"Periodo_ISO":"2024-06","Valor_RS":897696.08},{"Periodo_ISO":"2024-07","Valor_RS":1083683.17},{"Periodo_ISO":"2024-08","Valor_RS":1092688.45},{"Periodo_ISO":"2024-09","Valor_RS":1066946.41},{"Periodo_ISO":"2024-10","Valor_RS":1306176.57},{"Periodo_ISO":"2024-11","Valor_RS":1198554.52},{"Periodo_ISO":"2024-12","Valor_RS":1068525.61},{"Periodo_ISO":"2025-01","Valor_RS":823921.94},{"Periodo_ISO":"2025-02","Valor_RS":884371.69},{"Periodo_ISO":"2025-03","Valor_RS":1054348.67},{"Periodo_ISO":"2025-04","Valor_RS":1065213.03},{"Periodo_ISO":"2025-05","Valor_RS":1196865.72},{"Periodo_ISO":"2025-06","Valor_RS":992916.4},{"Periodo_ISO":"2025-07","Valor_RS":1216024.02},{"Periodo_ISO":"2025-08","Valor_RS":1166844.65},{"Periodo_ISO":"2025-09","Valor_RS":1246952.4},{"Periodo_ISO":"2025-10","Valor_RS":1520341.91},{"Periodo_ISO":"2025-11","Valor_RS":1344649.15},{"Periodo_ISO":"2025-12","Valor_RS":1397742.45},{"Periodo_ISO":"2026-01","Valor_RS":892494.39},{"Periodo_ISO":"2026-02","Valor_RS":817389.77},{"Periodo_ISO":"2026-03","Valor_RS":1487794.4},{"Periodo_ISO":"2026-04","Valor_RS":1245261.09},{"Periodo_ISO":"2026-05","Valor_RS":1344075.43},{"Periodo_ISO":"2026-06","Valor_RS":241721.86}],
+  comp: [{"Loja":"Andradas","2024":992135.08,"2025":1176956.14},{"Loja":"Anita","2024":713565.37,"2025":1100285.88},{"Loja":"AssisBrasil","2024":1034581.06,"2025":1020741.93},{"Loja":"Azenha","2024":0,"2025":507623.62},{"Loja":"Cachoeirinha","2024":308086.76,"2025":429955.81},{"Loja":"Canoas","2024":745355.93,"2025":706752.27},{"Loja":"Goethe","2024":731860.7,"2025":1308644.76},{"Loja":"Gravataí","2024":148229.78,"2025":323471.42},{"Loja":"Ipiranga","2024":466190.59,"2025":563944.86},{"Loja":"Nilo","2024":2301746.61,"2025":2491629.84},{"Loja":"Novo Hamburgo","2024":0,"2025":227588.42},{"Loja":"Osvaldo","2024":0,"2025":413777.06},{"Loja":"Otavio","2024":0,"2025":85775.97},{"Loja":"Shopping Total","2024":724225.67,"2025":711708.76},{"Loja":"Site/Protasio","2024":1962624.17,"2025":1605250.88},{"Loja":"Wenceslau","2024":1191107.98,"2025":1236084.41}],
+  por_ano_loja: {"2010":[{"Loja":"Site/Protasio","Valor_RS":5252.28}],"2011":[{"Loja":"Site/Protasio","Valor_RS":38234.13}],"2012":[{"Loja":"Site/Protasio","Valor_RS":74501.42}],"2013":[{"Loja":"Site/Protasio","Valor_RS":335545.4}],"2014":[{"Loja":"Site/Protasio","Valor_RS":741609.46}],"2015":[{"Loja":"Site/Protasio","Valor_RS":859735.24}],"2016":[{"Loja":"Site/Protasio","Valor_RS":1459367.84},{"Loja":"Nilo","Valor_RS":416335.65}],"2017":[{"Loja":"Site/Protasio","Valor_RS":1001052.17},{"Loja":"Nilo","Valor_RS":808343.86}],"2018":[{"Loja":"Nilo","Valor_RS":916491.73},{"Loja":"Site/Protasio","Valor_RS":787201.06}],"2019":[{"Loja":"Nilo","Valor_RS":938185.18},{"Loja":"Site/Protasio","Valor_RS":776503.77}],"2020":[{"Loja":"Nilo","Valor_RS":803566.29},{"Loja":"Site/Protasio","Valor_RS":801714.14}],"2021":[{"Loja":"Site/Protasio","Valor_RS":1187891.01},{"Loja":"Nilo","Valor_RS":1111103.11},{"Loja":"Wenceslau","Valor_RS":294526.3},{"Loja":"AssisBrasil","Valor_RS":182672.56}],"2022":[{"Loja":"Nilo","Valor_RS":1868180.8},{"Loja":"Site/Protasio","Valor_RS":1497886.21},{"Loja":"AssisBrasil","Valor_RS":792325.08},{"Loja":"Andradas","Valor_RS":775625.54},{"Loja":"Wenceslau","Valor_RS":710985.31},{"Loja":"Shopping Total","Valor_RS":200388.59}],"2023":[{"Loja":"Nilo","Valor_RS":2307799.67},{"Loja":"Site/Protasio","Valor_RS":1612870.78},{"Loja":"AssisBrasil","Valor_RS":981753.33},{"Loja":"Andradas","Valor_RS":952929.88},{"Loja":"Wenceslau","Valor_RS":921175.48},{"Loja":"Canoas","Valor_RS":562348.15},{"Loja":"Shopping Total","Valor_RS":493407.99},{"Loja":"Ipiranga","Valor_RS":285555.87},{"Loja":"Anita","Valor_RS":267723.36},{"Loja":"Goethe","Valor_RS":99200.8}],"2024":[{"Loja":"Nilo","Valor_RS":2301746.61},{"Loja":"Site/Protasio","Valor_RS":1962624.17},{"Loja":"Wenceslau","Valor_RS":1191107.98},{"Loja":"AssisBrasil","Valor_RS":1034581.06},{"Loja":"Andradas","Valor_RS":992135.08},{"Loja":"Canoas","Valor_RS":745355.93},{"Loja":"Goethe","Valor_RS":731860.7},{"Loja":"Shopping Total","Valor_RS":724225.67},{"Loja":"Anita","Valor_RS":713565.37},{"Loja":"Ipiranga","Valor_RS":466190.59},{"Loja":"Cachoeirinha","Valor_RS":308086.76},{"Loja":"Gravataí","Valor_RS":148229.78}],"2025":[{"Loja":"Nilo","Valor_RS":2491629.84},{"Loja":"Site/Protasio","Valor_RS":1605250.88},{"Loja":"Goethe","Valor_RS":1308644.76},{"Loja":"Wenceslau","Valor_RS":1236084.41},{"Loja":"Andradas","Valor_RS":1176956.14},{"Loja":"Anita","Valor_RS":1100285.88},{"Loja":"AssisBrasil","Valor_RS":1020741.93},{"Loja":"Shopping Total","Valor_RS":711708.76},{"Loja":"Canoas","Valor_RS":706752.27},{"Loja":"Ipiranga","Valor_RS":563944.86},{"Loja":"Azenha","Valor_RS":507623.62},{"Loja":"Cachoeirinha","Valor_RS":429955.81},{"Loja":"Osvaldo","Valor_RS":413777.06},{"Loja":"Gravataí","Valor_RS":323471.42},{"Loja":"Novo Hamburgo","Valor_RS":227588.42},{"Loja":"Otavio","Valor_RS":85775.97}],"2026":[{"Loja":"Nilo","Valor_RS":1079999.62},{"Loja":"Goethe","Valor_RS":693389.1},{"Loja":"Site/Protasio","Valor_RS":563546.77},{"Loja":"Wenceslau","Valor_RS":546737.09},{"Loja":"Andradas","Valor_RS":524747.78},{"Loja":"Anita","Valor_RS":425547.92},{"Loja":"AssisBrasil","Valor_RS":322249.12},{"Loja":"Shopping Total","Valor_RS":321354.3},{"Loja":"Osvaldo","Valor_RS":260818.55},{"Loja":"Canoas","Valor_RS":250305.01},{"Loja":"Ipiranga","Valor_RS":221343.72},{"Loja":"Azenha","Valor_RS":220418.55},{"Loja":"Novo Hamburgo","Valor_RS":206939.89},{"Loja":"Cachoeirinha","Valor_RS":177447.75},{"Loja":"Gravataí","Valor_RS":151871.55},{"Loja":"São Leopoldo","Valor_RS":46291.64},{"Loja":"Cristóvão","Valor_RS":15655.38}]},
+  ult_mes: [{"Loja":"Andradas","Variacao_Pct":-58},{"Loja":"Anita","Variacao_Pct":-75},{"Loja":"AssisBrasil","Variacao_Pct":-81},{"Loja":"Azenha","Variacao_Pct":-71},{"Loja":"Cachoeirinha","Variacao_Pct":-82},{"Loja":"Canoas","Variacao_Pct":-74},{"Loja":"Cristóvão","Variacao_Pct":null},{"Loja":"Goethe","Variacao_Pct":-78},{"Loja":"Gravataí","Variacao_Pct":-64},{"Loja":"Ipiranga","Variacao_Pct":-82},{"Loja":"Nilo","Variacao_Pct":-78},{"Loja":"Novo Hamburgo","Variacao_Pct":-46},{"Loja":"Osvaldo","Variacao_Pct":-63},{"Loja":"Otavio","Variacao_Pct":null},{"Loja":"Site/Protasio","Variacao_Pct":null},{"Loja":"São Leopoldo","Variacao_Pct":null},{"Loja":"Wenceslau","Variacao_Pct":-76}]
+};
+
+const fmt = (v) => v >= 1e6
+  ? 'R$ ' + (v/1e6).toFixed(2).replace('.',',') + 'M'
+  : v >= 1e3
+  ? 'R$ ' + (v/1e3).toFixed(1).replace('.',',') + 'K'
+  : 'R$ ' + v.toFixed(2).replace('.',',');
+
+const COLORS = ['#f5a623','#4f8ef7','#2ecc71','#e74c3c','#9b59b6','#1abc9c','#e67e22','#3498db','#e91e63','#00bcd4','#8bc34a','#ff5722','#607d8b','#795548','#673ab7','#ffc107','#009688'];
+
+// Preencher select de lojas
+const selLoja = document.getElementById('filtro-loja');
+DATA.por_loja.forEach(l => {
+  const o = document.createElement('option');
+  o.value = l.Loja; o.text = l.Loja;
+  selLoja.appendChild(o);
+});
+
+document.getElementById('last-update').textContent = 'Jun/2026';
+
+let charts = {};
+
+function destroyChart(id) {
+  if (charts[id]) { charts[id].destroy(); delete charts[id]; }
+}
+
+function renderAll() {
+  renderAnual();
+  renderPizza();
+  renderMensal();
+  renderComp();
+  renderTabela();
+}
+
+function renderAnual() {
+  destroyChart('chartAnual');
+  const ctx = document.getElementById('chartAnual').getContext('2d');
+  const anos = DATA.por_ano.map(d => d.Ano);
+  const vals = DATA.por_ano.map(d => d.Valor_RS);
+  charts['chartAnual'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: anos,
+      datasets: [{
+        label: 'Faturamento (R$)',
+        data: vals,
+        backgroundColor: vals.map((v,i) => i === vals.length-1 ? 'rgba(245,166,35,0.5)' : i === vals.length-2 ? 'rgba(79,142,247,0.8)' : 'rgba(79,142,247,0.45)'),
+        borderColor: vals.map((v,i) => i === vals.length-1 ? '#f5a623' : '#4f8ef7'),
+        borderWidth: 1.5,
+        borderRadius: 5,
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8892a4', font: {size:11} } },
+        y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8892a4', font:{size:11}, callback: v => fmt(v) } }
+      }
+    }
+  });
+}
+
+function renderPizza() {
+  destroyChart('chartPizza');
+  const ctx = document.getElementById('chartPizza').getContext('2d');
+  const anoSel = document.getElementById('pizza-ano').value;
+
+  let source;
+  if (anoSel === 'todos') {
+    source = DATA.por_loja.map(d => ({ Loja: d.Loja, Valor: d.Valor }));
+  } else {
+    source = (DATA.por_ano_loja[anoSel] || []).map(d => ({ Loja: d.Loja, Valor: d.Valor_RS }));
+  }
+  source = source.sort((a,b) => b.Valor - a.Valor);
+
+  const top8 = source.slice(0, 8);
+  const outrosVal = source.slice(8).reduce((a,b) => a + b.Valor, 0);
+  const labels = [...top8.map(d => d.Loja), ...(outrosVal > 0 ? ['Demais'] : [])];
+  const vals   = [...top8.map(d => d.Valor), ...(outrosVal > 0 ? [outrosVal] : [])];
+  const total  = vals.reduce((a,b) => a + b, 0);
+
+  charts['chartPizza'] = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels,
+      datasets: [{ data: vals, backgroundColor: COLORS, borderColor: '#1a1f2e', borderWidth: 2, hoverOffset: 8 }]
+    },
+    options: {
+      responsive: true,
+      cutout: '62%',
+      plugins: {
+        legend: { position: 'right', labels: { color: '#8892a4', font:{size:11}, boxWidth: 12, padding: 8 } },
+        tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)} (${(ctx.raw/total*100).toFixed(1)}%)` } }
+      }
+    }
+  });
+}
+
+function renderMensal() {
+  destroyChart('chartMensal');
+  const ctx = document.getElementById('chartMensal').getContext('2d');
+  const labels = DATA.recente.map(d => d.Periodo_ISO.replace('-','/'));
+  const vals = DATA.recente.map(d => d.Valor_RS);
+  const cores = vals.map((v,i) => i < 12 ? 'rgba(79,142,247,0.7)' : i < 24 ? 'rgba(245,166,35,0.8)' : 'rgba(46,204,113,0.8)');
+  charts['chartMensal'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Faturamento',
+        data: vals,
+        backgroundColor: cores,
+        borderRadius: 4,
+      }, {
+        label: 'Tendência',
+        data: vals,
+        type: 'line',
+        borderColor: '#f5a623',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.4,
+        fill: false,
+        yAxisID: 'y',
+      }]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode: 'index' },
+      plugins: {
+        legend: { labels: { color: '#8892a4', font:{size:11} } },
+        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.03)' }, ticks: { color: '#8892a4', font:{size:10}, maxRotation: 45 } },
+        y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8892a4', font:{size:11}, callback: v => fmt(v) } }
+      }
+    }
+  });
+}
+
+function renderComp() {
+  destroyChart('chartComp');
+  const ctx = document.getElementById('chartComp').getContext('2d');
+  const labels = DATA.comp.map(d => d.Loja);
+  charts['chartComp'] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [
+        { label: '2024', data: DATA.comp.map(d => d['2024']), backgroundColor: 'rgba(79,142,247,0.65)', borderRadius: 3 },
+        { label: '2025', data: DATA.comp.map(d => d['2025']), backgroundColor: 'rgba(245,166,35,0.85)', borderRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true,
+      indexAxis: 'y',
+      plugins: {
+        legend: { labels: { color: '#8892a4', font:{size:11} } },
+        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${fmt(ctx.raw)}` } }
+      },
+      scales: {
+        x: { grid: { color: 'rgba(255,255,255,0.05)' }, ticks: { color: '#8892a4', font:{size:10}, callback: v => fmt(v) } },
+        y: { grid: { display: false }, ticks: { color: '#e8eaf0', font:{size:11} } }
+      }
+    }
+  });
+}
+
+function renderTabela() {
+  const total = DATA.por_loja.reduce((a, b) => a + b.Valor, 0);
+  const varMap = {};
+  DATA.ult_mes.forEach(d => varMap[d.Loja] = d.Variacao_Pct);
+  const tbody = document.getElementById('tbody-lojas');
+  tbody.innerHTML = '';
+  DATA.por_loja.forEach((loja, i) => {
+    const pct = (loja.Valor / total * 100).toFixed(1);
+    const ticket = (loja.Valor / loja.Qtd).toFixed(2).replace('.',',');
+    const varPct = varMap[loja.Loja];
+    const varCell = varPct == null
+      ? '<span class="tag-neutral">—</span>'
+      : varPct >= 0
+      ? `<span class="tag-up">↑ +${varPct}%</span>`
+      : `<span class="tag-down">↓ ${varPct}%</span>`;
+    tbody.innerHTML += `
+      <tr>
+        <td style="color:var(--muted)">${i+1}</td>
+        <td><strong>${loja.Loja}</strong></td>
+        <td>${fmt(loja.Valor)}</td>
+        <td>
+          ${pct}%
+          <div class="bar-mini"><div class="bar-fill" style="width:${pct}%;background:${COLORS[i%COLORS.length]}"></div></div>
+        </td>
+        <td>${loja.Qtd.toLocaleString('pt-BR')}</td>
+        <td>R$ ${ticket}</td>
+        <td>${varCell}</td>
+      </tr>`;
+  });
+}
+
+function aplicarFiltros() { renderAll(); }
+function resetFiltros() {
+  document.getElementById('filtro-ano').value = '2025';
+  document.getElementById('filtro-loja').value = 'todas';
+  renderAll();
+}
+
+renderAll();
+</script>
+</body>
+</html>
