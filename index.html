@@ -727,7 +727,7 @@ function renderMoY() {
   const loja = document.getElementById('moy-loja').value;
   const meses = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
   const source = DATA.moy[loja] || {};
-  const entries = Object.entries(source).sort((a,b) => parseInt(a[0])-parseInt(b[0]));
+  const entries = Object.entries(source).filter(e => parseInt(e[0]) !== 6).sort((a,b) => parseInt(a[0])-parseInt(b[0]));
   const labels = entries.map(e => meses[parseInt(e[0])]);
   const v2025 = entries.map(e => e[1]['2025']);
   const v2026 = entries.map(e => e[1]['2026']);
@@ -807,7 +807,21 @@ function renderAlertas() {
   const cores = ['','','#f5a623','#e74c3c'];
   const icones = ['','🟡','🟠','🔴'];
   const meses = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const todas = Object.entries(DATA.quedas).sort((a,b) => b[1].meses_negativos - a[1].meses_negativos);
+  const alertasCalc = {};
+  Object.entries(DATA.moy).forEach(([loja, mesesData]) => {
+    const negativos = Object.entries(mesesData)
+      .filter(([m]) => parseInt(m) !== 6)
+      .filter(([, d]) => d['var'] < 0);
+    if (negativos.length >= 4) {
+      const media = (negativos.reduce((s,[,d])=>s+d['var'],0)/negativos.length).toFixed(1);
+      alertasCalc[loja] = {
+        meses_negativos: negativos.length,
+        media_var: parseFloat(media),
+        detalhes: negativos.map(([m,d])=>({mes:parseInt(m),var:d['var']}))
+      };
+    }
+  });
+  const todas = Object.entries(alertasCalc).sort((a,b) => b[1].meses_negativos - a[1].meses_negativos);
   if (todas.length === 0) {
     container.innerHTML = '<span style="color:var(--accent3);font-size:0.9rem;">✅ Nenhuma loja com 4+ meses negativos em 2026</span>';
     return;
