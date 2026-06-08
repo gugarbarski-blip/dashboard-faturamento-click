@@ -324,13 +324,6 @@
       <div class="chart-sub">2025 vs 2026 — mês a mês (crescimento real sem efeito sazonalidade)</div>
       <div class="chart-wrap"><canvas id="chartMoY" height="220"></canvas></div>
     </div>
-
-    <!-- Evolução Ticket Médio -->
-    <div class="chart-card">
-      <div class="chart-title">Evolução do Ticket Médio por Loja (2021–2026)</div>
-      <div class="chart-sub">Tendência de valorização ou desvalorização do pedido médio</div>
-      <div class="chart-wrap"><canvas id="chartTicketEvolucao" height="220"></canvas></div>
-    </div>
   </div>
 
   <!-- LINHA 5: Alertas de Queda -->
@@ -417,7 +410,6 @@ function renderAll() {
   renderComp();
   renderTicket();
   renderMoY();
-  renderTicketEvolucao();
   renderAlertas();
   renderTabela();
 }
