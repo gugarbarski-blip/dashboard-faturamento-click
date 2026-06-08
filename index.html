@@ -410,6 +410,7 @@ function destroyChart(id) {
 }
 
 function renderAll() {
+  renderKPIs();
   renderAnual();
   renderPizza();
   renderMensal();
@@ -419,6 +420,94 @@ function renderAll() {
   renderTicketEvolucao();
   renderAlertas();
   renderTabela();
+}
+
+function renderKPIs() {
+  const anoSel = document.getElementById('filtro-ano').value;
+  const lojaSel = document.getElementById('filtro-loja').value;
+
+  // Filtrar dados por_loja e por_ano conforme seleção
+  let fat = 0, qtd = 0;
+  let lojasFiltradas = new Set();
+
+  if (anoSel === 'todos' || anoSel === 'historico') {
+    // usa todos os anos
+    DATA.por_loja.forEach(l => {
+      if (lojaSel === 'todas' || l.Loja === lojaSel) {
+        fat += l.Valor;
+        qtd += l.Qtd;
+        lojasFiltradas.add(l.Loja);
+      }
+    });
+  } else {
+    const anoData = DATA.por_ano_loja[anoSel] || [];
+    anoData.forEach(l => {
+      if (lojaSel === 'todas' || l.Loja === lojaSel) {
+        fat += l.Valor_RS;
+        lojasFiltradas.add(l.Loja);
+      }
+    });
+    // qtd: somar da tabela por_loja proporcionalmente não temos, então busca do recente
+    DATA.recente.forEach(d => {
+      // não temos qtd por ano diretamente nos dados resumidos; usamos só fat
+    });
+    // fallback: qtd da tabela por_loja filtrada (histórico) — indicar que é histórico
+    DATA.por_loja.forEach(l => {
+      if (lojaSel === 'todas' || l.Loja === lojaSel) qtd += l.Qtd;
+    });
+    qtd = null; // não disponível por ano isolado nos dados resumidos
+  }
+
+  const ticket = (qtd && qtd > 0) ? fat / qtd : null;
+
+  // Variação vs ano anterior
+  let varTxt = '';
+  if (anoSel !== 'todos' && anoSel !== 'historico') {
+    const anoAtual = parseInt(anoSel);
+    const anoAnt = anoAtual - 1;
+    const dadosAnt = DATA.por_ano_loja[String(anoAnt)] || [];
+    let fatAnt = 0;
+    dadosAnt.forEach(l => {
+      if (lojaSel === 'todas' || l.Loja === lojaSel) fatAnt += l.Valor_RS;
+    });
+    if (fatAnt > 0) {
+      const varPct = ((fat - fatAnt) / fatAnt * 100).toFixed(1);
+      const sinal = varPct >= 0 ? '↑ +' : '↓ ';
+      const cls = varPct >= 0 ? 'badge-up' : 'badge-down';
+      varTxt = `<span class="kpi-badge ${cls}">${sinal}${varPct}% vs ${anoAnt}</span>`;
+    }
+  } else {
+    varTxt = '<span class="kpi-badge badge-up">↑ +22,8% vs 2024</span>';
+  }
+
+  document.getElementById('kpi-fat').textContent = fmt(fat);
+  const varEl = document.getElementById('kpi-fat-var');
+  if (varEl) varEl.outerHTML = `<span id="kpi-fat-var">${varTxt}</span>`;
+
+  if (qtd !== null) {
+    document.getElementById('kpi-qtd').textContent = qtd.toLocaleString('pt-BR');
+    document.getElementById('kpi-ticket').textContent = ticket ? 'R$ ' + ticket.toFixed(2).replace('.', ',') : '—';
+  } else {
+    document.getElementById('kpi-qtd').textContent = '—';
+    document.getElementById('kpi-ticket').textContent = '—';
+  }
+
+  document.getElementById('kpi-lojas').textContent = lojaSel === 'todas' ? lojasFiltradas.size || 17 : 1;
+
+  // Melhor mês do período selecionado
+  let melhorMes = null, melhorVal = 0;
+  DATA.recente.forEach(d => {
+    const ano = d.Periodo_ISO.split('-')[0];
+    if (anoSel === 'todos' || anoSel === 'historico' || ano === anoSel) {
+      if (d.Valor_RS > melhorVal) { melhorVal = d.Valor_RS; melhorMes = d.Periodo_ISO; }
+    }
+  });
+  if (melhorMes) {
+    const [a, m] = melhorMes.split('-');
+    const nomes = ['','Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+    document.querySelector('.kpi:last-child .kpi-value').textContent = fmt(melhorVal);
+    document.querySelector('.kpi:last-child .kpi-sub').textContent = `${nomes[parseInt(m)]}/${a}`;
+  }
 }
 
 function renderAnual() {
