@@ -530,15 +530,36 @@ function renderAnual() {
     },
     options: {
       responsive: true,
+      layout: { padding: { top: 28 } },
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } }
+        tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } },
+        datalabels: {
+          anchor: 'end',
+          align: 'end',
+          offset: 2,
+          font: { size: 10, weight: 'bold' },
+          color: (ctx) => {
+            const i = ctx.dataIndex;
+            const v = vals[i], prev = vals[i-1];
+            if (!prev) return '#8892a4';
+            return v >= prev ? '#2ecc71' : '#e74c3c';
+          },
+          formatter: (value, ctx) => {
+            const i = ctx.dataIndex;
+            const prev = vals[i-1];
+            if (!prev) return '';
+            const pct = ((value - prev) / prev * 100).toFixed(1);
+            return (pct >= 0 ? '+' : '') + pct + '%';
+          }
+        }
       },
       scales: {
         x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8892a4', font: {size:11} } },
         y: { grid: { color: 'rgba(255,255,255,0.06)' }, ticks: { color: '#8892a4', font:{size:11}, callback: v => fmt(v) } }
       }
-    }
+    },
+    plugins: [ChartDataLabels]
   });
 }
 
