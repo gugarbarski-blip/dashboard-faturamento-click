@@ -355,18 +355,22 @@
   <!-- LINHA 7: Tabela ranking -->
   <div class="charts-grid row-full">
     <div class="chart-card">
-      <div class="chart-title">Ranking de Lojas — Faturamento Histórico</div>
-      <div class="chart-sub">Valor total, quantidade de pedidos, ticket médio e variação último mês</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
+        <div>
+          <div class="chart-title">Ranking de Lojas</div>
+          <div class="chart-sub" style="margin-top:2px;">Faturamento, pedidos e ticket médio por ano</div>
+        </div>
+        <select id="tabela-ano" onchange="renderTabela()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 12px;font-size:0.85rem;cursor:pointer;"></select>
+      </div>
       <table id="tabela-lojas">
         <thead>
           <tr>
             <th>#</th>
             <th>Loja</th>
-            <th>Faturamento Total</th>
+            <th>Faturamento</th>
             <th>% do Total</th>
             <th>Pedidos</th>
             <th>Ticket Médio</th>
-            <th>Var. Último Mês</th>
           </tr>
         </thead>
         <tbody id="tbody-lojas"></tbody>
@@ -687,32 +691,32 @@ function renderComp() {
 }
 
 function renderTabela() {
-  const total = DATA.por_loja.reduce((a, b) => a + b.Valor, 0);
-  const varMap = {};
-  DATA.ult_mes.forEach(d => varMap[d.Loja] = d.Variacao_Pct);
+  const sel = document.getElementById('tabela-ano');
+  if (!sel.options.length) {
+    const anos = Object.keys(DATA.por_ano_loja).map(Number).sort((a,b) => b-a);
+    anos.forEach(a => { const o = document.createElement('option'); o.value=a; o.textContent=a; sel.appendChild(o); });
+  }
+  const ano = sel.value;
+  const lojas = (DATA.por_ano_loja[ano] || []).slice().sort((a,b) => b.Valor_RS - a.Valor_RS);
+  const qtdMap = DATA.qtd_ano_loja[ano] || {};
+  const total = lojas.reduce((s, d) => s + d.Valor_RS, 0);
   const tbody = document.getElementById('tbody-lojas');
   tbody.innerHTML = '';
-  DATA.por_loja.forEach((loja, i) => {
-    const pct = (loja.Valor / total * 100).toFixed(1);
-    const ticket = (loja.Valor / loja.Qtd).toFixed(2).replace('.',',');
-    const varPct = varMap[loja.Loja];
-    const varCell = varPct == null
-      ? '<span class="tag-neutral">—</span>'
-      : varPct >= 0
-      ? `<span class="tag-up">↑ +${varPct}%</span>`
-      : `<span class="tag-down">↓ ${varPct}%</span>`;
+  lojas.forEach((loja, i) => {
+    const pct = (loja.Valor_RS / total * 100).toFixed(1);
+    const qtd = qtdMap[loja.Loja] || 0;
+    const ticket = qtd ? (loja.Valor_RS / qtd).toFixed(2).replace('.',',') : '—';
     tbody.innerHTML += `
       <tr>
         <td style="color:var(--muted)">${i+1}</td>
         <td><strong>${loja.Loja}</strong></td>
-        <td>${fmt(loja.Valor)}</td>
+        <td>${fmt(loja.Valor_RS)}</td>
         <td>
           ${pct}%
           <div class="bar-mini"><div class="bar-fill" style="width:${pct}%;background:${COLORS[i%COLORS.length]}"></div></div>
         </td>
-        <td>${loja.Qtd.toLocaleString('pt-BR')}</td>
-        <td>R$ ${ticket}</td>
-        <td>${varCell}</td>
+        <td>${qtd ? qtd.toLocaleString('pt-BR') : '—'}</td>
+        <td>${qtd ? 'R$ '+ticket : '—'}</td>
       </tr>`;
   });
 }
