@@ -337,13 +337,8 @@
 
   </div>
 
-  <!-- LINHA 6: Projeção 2026 + Top Ganhos/Perdas -->
-  <div class="charts-grid row-2" style="margin-bottom:20px;">
-    <div class="chart-card">
-      <div class="chart-title">📈 Projeção de Fechamento 2026</div>
-      <div class="chart-sub" id="proj-sub">Baseado no ritmo Jan–Jun/2026 vs 2025 — meses futuros projetados</div>
-      <div class="chart-wrap"><canvas id="chartProjecao" height="240"></canvas></div>
-    </div>
+  <!-- LINHA 6: Top Ganhos/Perdas -->
+  <div class="charts-grid row-full" style="margin-bottom:20px;">
     <div class="chart-card">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:4px;">
         <div class="chart-title">🏆 Top Ganhos e Perdas em 2026 vs 2025</div>
@@ -437,7 +432,6 @@ function renderAll() {
   renderMensal();
   renderComp();
   renderTicket();
-  renderProjecao();
   renderTopVar();
   renderMoY();
   renderAlertas();
@@ -830,45 +824,6 @@ function renderAlertas() {
   });
 }
 
-function renderProjecao() {
-  destroyChart('chartProjecao');
-  const ctx = document.getElementById('chartProjecao').getContext('2d');
-  const meses = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-  const v2025 = [], vReal = [], vProj = [];
-  let totalProj = 0;
-  for (let m = 1; m <= 12; m++) {
-    const d = DATA.projecao[String(m)];
-    v2025.push(d['2025']);
-    vReal.push(d['2026_real']);
-    vProj.push(d['2026_proj']);
-    totalProj += (d['2026_real'] || d['2026_proj'] || 0);
-  }
-  document.getElementById('proj-sub').textContent =
-    `Projeção total 2026: ${fmt(totalProj)} — baseado no ritmo Jan–Jun vs 2025`;
-
-  charts['chartProjecao'] = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: meses,
-      datasets: [
-        { label: '2025 (real)', data: v2025, backgroundColor: 'rgba(79,142,247,0.45)', borderColor: '#4f8ef7', borderWidth: 1, borderRadius: 4 },
-        { label: '2026 (real)', data: vReal, backgroundColor: 'rgba(46,204,113,0.75)', borderColor: '#2ecc71', borderWidth: 1, borderRadius: 4 },
-        { label: '2026 (projetado)', data: vProj, backgroundColor: 'rgba(245,166,35,0.35)', borderColor: '#f5a623', borderWidth: 1.5, borderDash: [5,5], borderRadius: 4 },
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { labels: { color: '#8892a4', font:{size:11} } },
-        tooltip: { callbacks: { label: ctx => `${ctx.dataset.label}: ${ctx.raw ? fmt(ctx.raw) : '—'}` } }
-      },
-      scales: {
-        x: { grid:{color:'rgba(255,255,255,0.04)'}, ticks:{color:'#8892a4',font:{size:11}} },
-        y: { grid:{color:'rgba(255,255,255,0.06)'}, ticks:{color:'#8892a4',font:{size:11},callback:v=>fmt(v)} }
-      }
-    }
-  });
-}
 
 let topVarMode = 'fat';
 
