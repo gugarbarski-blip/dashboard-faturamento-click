@@ -210,45 +210,6 @@
     </div>
   </div>
 
-  <!-- META VS REALIZADO -->
-  <div class="chart-card" style="margin-bottom:20px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
-      <div>
-        <div class="chart-title">🎯 Meta vs Realizado</div>
-        <div class="chart-sub" id="meta-sub"></div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <!-- Toggle Mensal / Anual -->
-        <div style="display:flex;background:var(--card2);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
-          <button id="meta-btn-mensal" onclick="setMetaMode('mensal')" style="padding:6px 16px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;background:var(--accent);color:#000;">Mensal</button>
-          <button id="meta-btn-anual" onclick="setMetaMode('anual')" style="padding:6px 16px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--muted);">Anual</button>
-        </div>
-        <!-- Filtros Mensal -->
-        <div id="meta-filtros-mensal" style="display:flex;gap:8px;">
-          <select id="meta-mes" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
-            <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
-            <option value="4">Abril</option><option value="5">Maio</option><option value="6" selected>Junho</option>
-            <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
-            <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-          </select>
-          <select id="meta-ano" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
-            <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
-          </select>
-        </div>
-        <!-- Filtros Anual -->
-        <div id="meta-filtros-anual" style="display:none;">
-          <select id="meta-ano-anual" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
-            <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
-          </select>
-        </div>
-      </div>
-    </div>
-    <!-- Resumo geral -->
-    <div id="meta-resumo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;padding:14px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid var(--border);"></div>
-    <!-- Cards por loja -->
-    <div id="meta-bars" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;"></div>
-  </div>
-
   <!-- LINHA 1: Evolução histórica + Pizza por loja -->
   <div class="charts-grid row-3" style="margin-bottom:20px;">
     <div class="chart-card">
@@ -389,6 +350,40 @@
       <div class="chart-sub" id="topvar-sub">Jan–Mai/2026 vs Jan–Mai/2025 — variação em faturamento (R$)</div>
       <div class="chart-wrap"><canvas id="chartTopVar" height="240"></canvas></div>
     </div>
+  </div>
+
+  <!-- META VS REALIZADO -->
+  <div class="chart-card" style="margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
+      <div>
+        <div class="chart-title">🎯 Meta vs Realizado</div>
+        <div class="chart-sub" id="meta-sub"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <div style="display:flex;background:var(--card2);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+          <button id="meta-btn-mensal" onclick="setMetaMode('mensal')" style="padding:6px 16px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;background:var(--accent);color:#000;">Mensal</button>
+          <button id="meta-btn-anual" onclick="setMetaMode('anual')" style="padding:6px 16px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--muted);">Anual</button>
+        </div>
+        <div id="meta-filtros-mensal" style="display:flex;gap:8px;">
+          <select id="meta-mes" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
+            <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+            <option value="4">Abril</option><option value="5">Maio</option><option value="6" selected>Junho</option>
+            <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+            <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+          </select>
+          <select id="meta-ano" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
+            <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
+          </select>
+        </div>
+        <div id="meta-filtros-anual" style="display:none;">
+          <select id="meta-ano-anual" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
+            <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <div id="meta-resumo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;padding:14px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid var(--border);"></div>
+    <div id="meta-bars" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;"></div>
   </div>
 
   <!-- LINHA 7: Tabela ranking -->
