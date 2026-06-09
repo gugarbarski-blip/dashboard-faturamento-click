@@ -210,6 +210,18 @@
     </div>
   </div>
 
+  <!-- META VS REALIZADO -->
+  <div class="chart-card" style="margin-bottom:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+      <div>
+        <div class="chart-title">🎯 Meta vs Realizado — Mês Atual</div>
+        <div class="chart-sub" id="meta-sub">Junho/2026 · em andamento</div>
+      </div>
+      <div id="meta-resumo" style="font-size:0.82rem;color:var(--muted);text-align:right;"></div>
+    </div>
+    <div id="meta-bars" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+  </div>
+
   <!-- LINHA 1: Evolução histórica + Pizza por loja -->
   <div class="charts-grid row-3" style="margin-bottom:20px;">
     <div class="chart-card">
@@ -395,6 +407,7 @@ const DATA = {
   qtd_ano: {"2026":64129,"2025":141462,"2024":99318,"2023":73031,"2022":51169,"2021":26895,"2020":14460,"2019":17378,"2018":15474,"2017":12650,"2016":8390,"2015":3285,"2014":2785,"2013":1589,"2012":588,"2011":331,"2010":54},
   qtd_ano_loja: {"2026":{"Andradas":6682,"Anita":6320,"AssisBrasil":3985,"Azenha":3645,"Cachoeirinha":2922,"Canoas":3500,"Cristóvão":332,"Goethe":5473,"Gravataí":2860,"Ipiranga":3570,"Nilo":7749,"Novo Hamburgo":1586,"Osvaldo":5194,"Otavio":2,"Site/Protasio":3989,"São Leopoldo":955,"Wenceslau":5365},"2025":{"Andradas":14818,"Anita":14660,"AssisBrasil":10514,"Azenha":6552,"Cachoeirinha":6480,"Canoas":8212,"Goethe":11406,"Gravataí":5999,"Ipiranga":7856,"Nilo":20272,"Novo Hamburgo":1758,"Osvaldo":7361,"Otavio":2649,"Site/Protasio":10003,"Wenceslau":12922},"2024":{"Andradas":10796,"Anita":9861,"AssisBrasil":9916,"Cachoeirinha":4577,"Canoas":7230,"Goethe":7938,"Gravataí":2563,"Ipiranga":6342,"Nilo":18500,"Site/Protasio":10017,"Wenceslau":11578},"2023":{"Andradas":11360,"Anita":4535,"AssisBrasil":9542,"Canoas":5624,"Goethe":1410,"Ipiranga":3560,"Nilo":17481,"Site/Protasio":9351,"Wenceslau":10168},"2022":{"Andradas":8433,"AssisBrasil":8956,"Nilo":16213,"Site/Protasio":9216,"Wenceslau":8351},"2021":{"AssisBrasil":2359,"Nilo":13401,"Site/Protasio":7335,"Wenceslau":3800},"2020":{"Nilo":9763,"Site/Protasio":4697},"2019":{"Nilo":13312,"Site/Protasio":4066},"2018":{"Nilo":12221,"Site/Protasio":3253},"2017":{"Nilo":9650,"Site/Protasio":3000},"2016":{"Nilo":5360,"Site/Protasio":3030},"2015":{"Site/Protasio":3285},"2014":{"Site/Protasio":2785},"2013":{"Site/Protasio":1589},"2012":{"Site/Protasio":588},"2011":{"Site/Protasio":331},"2010":{"Site/Protasio":54}},
   moy: {"Andradas":{"1":{"2025":47864.26,"2026":81111.62,"var":69.5},"2":{"2025":80489.32,"2026":60901.67,"var":-24.3},"3":{"2025":101994.26,"2026":130476.33,"var":27.9},"4":{"2025":83089.6,"2026":117067.3,"var":40.9},"5":{"2025":104314.82,"2026":110170.96,"var":5.6},"6":{"2025":59283.06,"2026":25019.9,"var":-57.8}},"Anita":{"1":{"2025":76900.72,"2026":69719.74,"var":-9.3},"2":{"2025":51925.83,"2026":69319.36,"var":33.5},"3":{"2025":81444.45,"2026":96108.11,"var":18.0},"4":{"2025":95901.29,"2026":81866.16,"var":-14.6},"5":{"2025":92074.4,"2026":90533.35,"var":-1.7},"6":{"2025":73155.28,"2026":18001.2,"var":-75.4}},"AssisBrasil":{"1":{"2025":70883.48,"2026":56384.4,"var":-20.5},"2":{"2025":79350.77,"2026":50664.72,"var":-36.2},"3":{"2025":90020.88,"2026":70508.74,"var":-21.7},"4":{"2025":107779.1,"2026":63195.73,"var":-41.4},"5":{"2025":80248.03,"2026":65776.03,"var":-18.0},"6":{"2025":83293.96,"2026":15719.5,"var":-81.1}},"Azenha":{"1":{"2025":6796.7,"2026":32874.93,"var":383.7},"2":{"2025":26667.07,"2026":37862.11,"var":42.0},"3":{"2025":33082.43,"2026":39928.26,"var":20.7},"4":{"2025":32776.78,"2026":52341.92,"var":59.7},"5":{"2025":42009.09,"2026":43899.53,"var":4.5},"6":{"2025":46121.3,"2026":13511.8,"var":-70.7}},"Cachoeirinha":{"1":{"2025":30166.3,"2026":30834.05,"var":2.2},"2":{"2025":19207.63,"2026":25587.24,"var":33.2},"3":{"2025":49622.04,"2026":37691.04,"var":-24.0},"4":{"2025":34563.78,"2026":44469.32,"var":28.7},"5":{"2025":37307.27,"2026":33894.0,"var":-9.1},"6":{"2025":28182.8,"2026":4972.1,"var":-82.4}},"Canoas":{"1":{"2025":39624.46,"2026":40287.35,"var":1.7},"2":{"2025":36650.9,"2026":35874.1,"var":-2.1},"3":{"2025":58342.96,"2026":58952.78,"var":1.0},"4":{"2025":54996.06,"2026":47758.05,"var":-13.2},"5":{"2025":60801.48,"2026":54837.37,"var":-9.8},"6":{"2025":47888.98,"2026":12595.36,"var":-73.7}},"Goethe":{"1":{"2025":59715.37,"2026":105243.53,"var":76.2},"2":{"2025":87573.98,"2026":113026.22,"var":29.1},"3":{"2025":114613.91,"2026":185304.84,"var":61.7},"4":{"2025":96817.67,"2026":132223.55,"var":36.6},"5":{"2025":102757.45,"2026":138055.03,"var":34.4},"6":{"2025":90510.94,"2026":19535.93,"var":-78.4}},"Gravataí":{"1":{"2025":17444.0,"2026":16074.73,"var":-7.8},"2":{"2025":15890.78,"2026":23592.0,"var":48.5},"3":{"2025":24867.2,"2026":39578.52,"var":59.2},"4":{"2025":24704.3,"2026":31813.8,"var":28.8},"5":{"2025":28577.6,"2026":32862.9,"var":15.0},"6":{"2025":21975.6,"2026":7949.6,"var":-63.8}},"Ipiranga":{"1":{"2025":50970.28,"2026":37859.24,"var":-25.7},"2":{"2025":35530.49,"2026":25805.9,"var":-27.4},"3":{"2025":43414.82,"2026":39043.78,"var":-10.1},"4":{"2025":46581.92,"2026":37402.13,"var":-19.7},"5":{"2025":51658.63,"2026":73399.07,"var":42.1},"6":{"2025":42464.65,"2026":7833.6,"var":-81.6}},"Nilo":{"1":{"2025":168781.93,"2026":103192.72,"var":-38.9},"2":{"2025":155241.86,"2026":128205.84,"var":-17.4},"3":{"2025":195635.0,"2026":386144.49,"var":97.4},"4":{"2025":177231.6,"2026":184195.46,"var":3.9},"5":{"2025":241847.32,"2026":234386.07,"var":-3.1},"6":{"2025":198396.24,"2026":43875.04,"var":-77.9}},"Osvaldo":{"4":{"2025":2987.1,"2026":74499.19,"var":2394.0},"5":{"2025":51959.81,"2026":50641.28,"var":-2.5},"6":{"2025":33258.54,"2026":12152.32,"var":-63.5}},"Site/Protasio":{"1":{"2025":141624.62,"2026":102732.93,"var":-27.5},"2":{"2025":174473.31,"2026":64636.42,"var":-63.0},"3":{"2025":109831.83,"2026":125463.17,"var":14.2},"4":{"2025":123958.7,"2026":129455.34,"var":4.4},"5":{"2025":131484.62,"2026":127117.98,"var":-3.3},"6":{"2025":113784.95,"2026":14140.93,"var":-87.6}},"Wenceslau":{"1":{"2025":69832.36,"2026":86338.67,"var":23.6},"2":{"2025":79862.94,"2026":75575.68,"var":-5.4},"3":{"2025":94929.53,"2026":98366.93,"var":3.6},"4":{"2025":103163.27,"2026":124068.96,"var":20.3},"5":{"2025":106123.58,"2026":140395.65,"var":32.3},"6":{"2025":89969.25,"2026":21991.2,"var":-75.6}}},
+  metas: {"Site/Protasio":300000,"Nilo":200000,"Wenceslau":80000,"AssisBrasil":76000,"Andradas":109000,"Shopping Total":79000,"Ipiranga":57000,"Canoas":77000,"Anita":96000,"Goethe":102000,"Cachoeirinha":59000,"Gravataí":58000,"Azenha":100000,"Osvaldo":85000,"Novo Hamburgo":52000,"São Leopoldo":65000,"Cristóvão":65000},
   quedas: {"AssisBrasil":{"meses_negativos":6,"media_var":-36.5,"detalhes":[{"mes":1,"var":-20.5},{"mes":2,"var":-36.2},{"mes":3,"var":-21.7},{"mes":4,"var":-41.4},{"mes":5,"var":-18.0},{"mes":6,"var":-81.1}]},"Ipiranga":{"meses_negativos":5,"media_var":-32.9,"detalhes":[{"mes":1,"var":-25.7},{"mes":2,"var":-27.4},{"mes":3,"var":-10.1},{"mes":4,"var":-19.7},{"mes":6,"var":-81.6}]},"Anita":{"meses_negativos":4,"media_var":-25.2,"detalhes":[{"mes":1,"var":-9.3},{"mes":4,"var":-14.6},{"mes":5,"var":-1.7},{"mes":6,"var":-75.4}]},"Canoas":{"meses_negativos":4,"media_var":-24.7,"detalhes":[{"mes":2,"var":-2.1},{"mes":4,"var":-13.2},{"mes":5,"var":-9.8},{"mes":6,"var":-73.7}]},"Nilo":{"meses_negativos":4,"media_var":-34.3,"detalhes":[{"mes":1,"var":-38.9},{"mes":2,"var":-17.4},{"mes":5,"var":-3.1},{"mes":6,"var":-77.9}]},"Site/Protasio":{"meses_negativos":4,"media_var":-45.3,"detalhes":[{"mes":1,"var":-27.5},{"mes":2,"var":-63.0},{"mes":5,"var":-3.3},{"mes":6,"var":-87.6}]}},
   ticket_evolucao: {"Nilo":{"2021":82.91,"2022":115.23,"2023":132.02,"2024":124.42,"2025":122.91,"2026":139.37},"Site/Protasio":{"2021":161.95,"2022":162.53,"2023":172.48,"2024":195.93,"2025":160.48,"2026":141.28},"Goethe":{"2021":null,"2022":null,"2023":70.36,"2024":92.2,"2025":114.73,"2026":126.69},"Wenceslau":{"2021":77.51,"2022":85.14,"2023":90.6,"2024":102.88,"2025":95.66,"2026":101.91},"Andradas":{"2021":null,"2022":91.98,"2023":83.88,"2024":91.9,"2025":79.43,"2026":78.53},"Anita":{"2021":null,"2022":null,"2023":59.03,"2024":72.36,"2025":75.05,"2026":67.33},"AssisBrasil":{"2021":77.44,"2022":88.47,"2023":102.89,"2024":104.33,"2025":97.08,"2026":80.87},"Canoas":{"2021":null,"2022":null,"2023":99.99,"2024":103.09,"2025":86.06,"2026":71.52},"Ipiranga":{"2021":null,"2022":null,"2023":80.21,"2024":73.51,"2025":71.79,"2026":62.0},"Cachoeirinha":{"2021":null,"2022":null,"2023":null,"2024":67.31,"2025":66.35,"2026":60.73}},
   ticket_anual: {"2026":{"Andradas":78.53,"Anita":67.33,"AssisBrasil":80.87,"Azenha":60.47,"Cachoeirinha":60.73,"Canoas":71.52,"Cristóvão":47.15,"Goethe":126.69,"Gravataí":53.1,"Ipiranga":62.0,"Nilo":139.37,"Novo Hamburgo":130.48,"Osvaldo":50.22,"Otavio":36.6,"Site/Protasio":141.28,"São Leopoldo":48.47,"Wenceslau":101.91},"2025":{"Andradas":79.43,"Anita":75.05,"AssisBrasil":97.08,"Azenha":77.48,"Cachoeirinha":66.35,"Canoas":86.06,"Goethe":114.73,"Gravataí":53.92,"Ipiranga":71.79,"Nilo":122.91,"Novo Hamburgo":129.46,"Osvaldo":56.21,"Otavio":32.38,"Site/Protasio":160.48,"Wenceslau":95.66},"2024":{"Andradas":91.9,"Anita":72.36,"AssisBrasil":104.33,"Cachoeirinha":67.31,"Canoas":103.09,"Goethe":92.2,"Gravataí":57.83,"Ipiranga":73.51,"Nilo":124.42,"Site/Protasio":195.93,"Wenceslau":102.88},"2023":{"Andradas":83.88,"Anita":59.03,"AssisBrasil":102.89,"Canoas":99.99,"Goethe":70.36,"Ipiranga":80.21,"Nilo":132.02,"Site/Protasio":172.48,"Wenceslau":90.6},"2022":{"Andradas":91.98,"AssisBrasil":88.47,"Nilo":115.23,"Site/Protasio":162.53,"Wenceslau":85.14},"2021":{"AssisBrasil":77.44,"Nilo":82.91,"Site/Protasio":161.95,"Wenceslau":77.51},"2020":{"Nilo":82.31,"Site/Protasio":170.69}},
@@ -431,6 +444,7 @@ function destroyChart(id) {
 
 function renderAll() {
   renderKPIs();
+  renderMetas();
   renderAnual();
   renderPizza();
   renderMensal();
@@ -440,6 +454,55 @@ function renderAll() {
   renderMoY();
   renderAlertas();
   renderTabela();
+}
+
+function renderMetas() {
+  const container = document.getElementById('meta-bars');
+  container.innerHTML = '';
+
+  // Usar dados do mês atual (junho 2026) do heatmap
+  const mesAtual = DATA.heatmap['2026'] || {};
+  const nomeMes = 'Junho/2026';
+  document.getElementById('meta-sub').textContent = `${nomeMes} · em andamento`;
+
+  const lojas = Object.keys(DATA.metas).sort((a,b) => DATA.metas[b] - DATA.metas[a]);
+  let totalMeta = 0, totalReal = 0, lojasBatendo = 0;
+
+  lojas.forEach(loja => {
+    const meta = DATA.metas[loja];
+    const real = (mesAtual[loja] && mesAtual[loja]['6']) ? mesAtual[loja]['6'] : 0;
+    totalMeta += meta;
+    totalReal += real;
+    const pct = Math.min((real / meta) * 100, 100);
+    const pctReal = ((real / meta) * 100).toFixed(1);
+    const falta = meta - real;
+    const bateu = real >= meta;
+    if (bateu) lojasBatendo++;
+
+    const cor = bateu ? '#2ecc71' : real / meta >= 0.7 ? '#f5a623' : '#e74c3c';
+    const bg = bateu ? 'rgba(46,204,113,0.08)' : real / meta >= 0.7 ? 'rgba(245,166,35,0.08)' : 'rgba(231,76,60,0.08)';
+    const status = bateu ? '✅ Meta atingida!' : `Faltam ${fmt(falta)}`;
+
+    container.innerHTML += `
+      <div style="background:${bg};border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+          <span style="font-weight:700;font-size:0.9rem;color:var(--text);">${loja}</span>
+          <span style="font-size:0.78rem;font-weight:700;color:${cor};">${pctReal}%</span>
+        </div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px;">
+          <div style="width:${pct}%;height:100%;background:${cor};border-radius:6px;transition:width 0.6s ease;"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);">
+          <span>${fmt(real)} <span style="opacity:0.6;">/ meta ${fmt(meta)}</span></span>
+          <span style="color:${cor};">${status}</span>
+        </div>
+      </div>`;
+  });
+
+  const pctGeral = ((totalReal / totalMeta) * 100).toFixed(1);
+  document.getElementById('meta-resumo').innerHTML =
+    `<strong style="color:var(--text);">${lojasBatendo}/${lojas.length}</strong> lojas bateram a meta<br>
+     Total: <strong style="color:var(--accent);">${fmt(totalReal)}</strong> de <strong>${fmt(totalMeta)}</strong> (${pctGeral}%)`;
 }
 
 function renderKPIs() {
