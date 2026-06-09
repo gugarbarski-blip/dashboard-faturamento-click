@@ -212,14 +212,27 @@
 
   <!-- META VS REALIZADO -->
   <div class="chart-card" style="margin-bottom:20px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;margin-bottom:16px;">
       <div>
-        <div class="chart-title">🎯 Meta vs Realizado — Mês Atual</div>
-        <div class="chart-sub" id="meta-sub">Junho/2026 · em andamento</div>
+        <div class="chart-title">🎯 Meta vs Realizado</div>
+        <div class="chart-sub" id="meta-sub"></div>
       </div>
-      <div id="meta-resumo" style="font-size:0.82rem;color:var(--muted);text-align:right;"></div>
+      <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+        <select id="meta-mes" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
+          <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+          <option value="4">Abril</option><option value="5">Maio</option><option value="6" selected>Junho</option>
+          <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+          <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+        </select>
+        <select id="meta-ano" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
+          <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
+        </select>
+      </div>
     </div>
-    <div id="meta-bars" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:12px;"></div>
+    <!-- Resumo geral -->
+    <div id="meta-resumo" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-bottom:16px;padding:14px;background:rgba(255,255,255,0.03);border-radius:10px;border:1px solid var(--border);"></div>
+    <!-- Cards por loja -->
+    <div id="meta-bars" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;"></div>
   </div>
 
   <!-- LINHA 1: Evolução histórica + Pizza por loja -->
@@ -457,52 +470,85 @@ function renderAll() {
 }
 
 function renderMetas() {
-  const container = document.getElementById('meta-bars');
-  container.innerHTML = '';
+  const mes = document.getElementById('meta-mes').value;
+  const ano = document.getElementById('meta-ano').value;
+  const nomesMes = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const anoAtual = 6, mesAtual = 6; // junho/2026 é o mês em andamento
+  const emAndamento = ano === '2026' && parseInt(mes) === mesAtual;
 
-  // Usar dados do mês atual (junho 2026) do heatmap
-  const mesAtual = DATA.heatmap['2026'] || {};
-  const nomeMes = 'Junho/2026';
-  document.getElementById('meta-sub').textContent = `${nomeMes} · em andamento`;
+  document.getElementById('meta-sub').textContent =
+    `${nomesMes[parseInt(mes)]}/${ano}${emAndamento ? ' · mês em andamento' : ''}`;
 
+  const dadosAno = DATA.heatmap[ano] || {};
   const lojas = Object.keys(DATA.metas).sort((a,b) => DATA.metas[b] - DATA.metas[a]);
-  let totalMeta = 0, totalReal = 0, lojasBatendo = 0;
+
+  let totalMeta = 0, totalReal = 0, nBateu = 0, nAcima70 = 0, nAbaixo = 0;
+  const linhas = [];
 
   lojas.forEach(loja => {
     const meta = DATA.metas[loja];
-    const real = (mesAtual[loja] && mesAtual[loja]['6']) ? mesAtual[loja]['6'] : 0;
+    const real = dadosAno[loja] ? (dadosAno[loja][mes] || 0) : 0;
     totalMeta += meta;
     totalReal += real;
-    const pct = Math.min((real / meta) * 100, 100);
-    const pctReal = ((real / meta) * 100).toFixed(1);
-    const falta = meta - real;
-    const bateu = real >= meta;
-    if (bateu) lojasBatendo++;
+    const ratio = real / meta;
+    const pct = Math.min(ratio * 100, 100);
+    const pctStr = (ratio * 100).toFixed(1);
+    const bateu = ratio >= 1;
+    const quase = ratio >= 0.7;
+    if (bateu) nBateu++;
+    else if (quase) nAcima70++;
+    else nAbaixo++;
 
-    const cor = bateu ? '#2ecc71' : real / meta >= 0.7 ? '#f5a623' : '#e74c3c';
-    const bg = bateu ? 'rgba(46,204,113,0.08)' : real / meta >= 0.7 ? 'rgba(245,166,35,0.08)' : 'rgba(231,76,60,0.08)';
-    const status = bateu ? '✅ Meta atingida!' : `Faltam ${fmt(falta)}`;
+    const cor = bateu ? '#2ecc71' : quase ? '#f5a623' : '#e74c3c';
+    const bordaCor = bateu ? 'rgba(46,204,113,0.3)' : quase ? 'rgba(245,166,35,0.25)' : 'rgba(231,76,60,0.2)';
+    const bgCard = bateu ? 'rgba(46,204,113,0.06)' : quase ? 'rgba(245,166,35,0.06)' : 'rgba(231,76,60,0.05)';
+    const icone = bateu ? '✅' : quase ? '⚠️' : '🔴';
+    const statusTxt = bateu ? 'Meta atingida' : `Faltam ${fmt(meta - real)}`;
 
+    linhas.push({ loja, meta, real, ratio, pct, pctStr, cor, bordaCor, bgCard, icone, statusTxt });
+  });
+
+  // Resumo geral
+  const pctGeral = (totalReal / totalMeta * 100).toFixed(1);
+  const resumoEl = document.getElementById('meta-resumo');
+  resumoEl.innerHTML = `
+    <div style="text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;color:var(--accent);">${pctGeral}%</div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">do total geral</div>
+      <div style="font-size:0.8rem;color:var(--text);margin-top:4px;">${fmt(totalReal)} <span style="color:var(--muted);">/ ${fmt(totalMeta)}</span></div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;color:#2ecc71;">${nBateu}</div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">lojas bateram a meta</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;color:#f5a623;">${nAcima70}</div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">acima de 70%</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="font-size:1.5rem;font-weight:800;color:#e74c3c;">${nAbaixo}</div>
+      <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">abaixo de 70%</div>
+    </div>`;
+
+  // Cards por loja
+  const container = document.getElementById('meta-bars');
+  container.innerHTML = '';
+  linhas.forEach(({ loja, meta, real, pct, pctStr, cor, bordaCor, bgCard, icone, statusTxt }) => {
     container.innerHTML += `
-      <div style="background:${bg};border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:12px 14px;">
-        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
-          <span style="font-weight:700;font-size:0.9rem;color:var(--text);">${loja}</span>
-          <span style="font-size:0.78rem;font-weight:700;color:${cor};">${pctReal}%</span>
+      <div style="background:${bgCard};border:1px solid ${bordaCor};border-radius:10px;padding:14px 16px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <span style="font-weight:700;font-size:0.92rem;color:var(--text);">${loja}</span>
+          <span style="font-size:0.75rem;font-weight:700;color:${cor};background:rgba(255,255,255,0.06);padding:2px 8px;border-radius:20px;">${icone} ${pctStr}%</span>
         </div>
-        <div style="background:rgba(255,255,255,0.07);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px;">
-          <div style="width:${pct}%;height:100%;background:${cor};border-radius:6px;transition:width 0.6s ease;"></div>
+        <div style="background:rgba(255,255,255,0.07);border-radius:6px;height:10px;overflow:hidden;margin-bottom:8px;">
+          <div style="width:${pct}%;height:100%;background:${cor};border-radius:6px;"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);">
-          <span>${fmt(real)} <span style="opacity:0.6;">/ meta ${fmt(meta)}</span></span>
-          <span style="color:${cor};">${status}</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.75rem;">
+          <span style="color:var(--text);font-weight:600;">${fmt(real)}<span style="color:var(--muted);font-weight:400;"> / ${fmt(meta)}</span></span>
+          <span style="color:${cor};font-weight:600;">${statusTxt}</span>
         </div>
       </div>`;
   });
-
-  const pctGeral = ((totalReal / totalMeta) * 100).toFixed(1);
-  document.getElementById('meta-resumo').innerHTML =
-    `<strong style="color:var(--text);">${lojasBatendo}/${lojas.length}</strong> lojas bateram a meta<br>
-     Total: <strong style="color:var(--accent);">${fmt(totalReal)}</strong> de <strong>${fmt(totalMeta)}</strong> (${pctGeral}%)`;
 }
 
 function renderKPIs() {
