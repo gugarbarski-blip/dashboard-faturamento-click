@@ -218,15 +218,29 @@
         <div class="chart-sub" id="meta-sub"></div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-        <select id="meta-mes" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
-          <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
-          <option value="4">Abril</option><option value="5">Maio</option><option value="6" selected>Junho</option>
-          <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
-          <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
-        </select>
-        <select id="meta-ano" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
-          <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
-        </select>
+        <!-- Toggle Mensal / Anual -->
+        <div style="display:flex;background:var(--card2);border:1px solid var(--border);border-radius:6px;overflow:hidden;">
+          <button id="meta-btn-mensal" onclick="setMetaMode('mensal')" style="padding:6px 16px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;background:var(--accent);color:#000;">Mensal</button>
+          <button id="meta-btn-anual" onclick="setMetaMode('anual')" style="padding:6px 16px;font-size:0.82rem;font-weight:700;border:none;cursor:pointer;background:transparent;color:var(--muted);">Anual</button>
+        </div>
+        <!-- Filtros Mensal -->
+        <div id="meta-filtros-mensal" style="display:flex;gap:8px;">
+          <select id="meta-mes" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
+            <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option>
+            <option value="4">Abril</option><option value="5">Maio</option><option value="6" selected>Junho</option>
+            <option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option>
+            <option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+          </select>
+          <select id="meta-ano" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
+            <option value="2024">2024</option><option value="2025">2025</option><option value="2026" selected>2026</option>
+          </select>
+        </div>
+        <!-- Filtros Anual -->
+        <div id="meta-filtros-anual" style="display:none;">
+          <select id="meta-ano-anual" onchange="renderMetas()" style="background:var(--card2);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:6px 10px;font-size:0.85rem;cursor:pointer;">
+            <option value="2024">2024</option><option value="2025" selected>2025</option><option value="2026">2026</option>
+          </select>
+        </div>
       </div>
     </div>
     <!-- Resumo geral -->
@@ -469,49 +483,79 @@ function renderAll() {
   renderTabela();
 }
 
+let metaMode = 'mensal';
+
+function setMetaMode(mode) {
+  metaMode = mode;
+  document.getElementById('meta-btn-mensal').style.background = mode === 'mensal' ? 'var(--accent)' : 'transparent';
+  document.getElementById('meta-btn-mensal').style.color = mode === 'mensal' ? '#000' : 'var(--muted)';
+  document.getElementById('meta-btn-anual').style.background = mode === 'anual' ? 'var(--accent)' : 'transparent';
+  document.getElementById('meta-btn-anual').style.color = mode === 'anual' ? '#000' : 'var(--muted)';
+  document.getElementById('meta-filtros-mensal').style.display = mode === 'mensal' ? 'flex' : 'none';
+  document.getElementById('meta-filtros-anual').style.display = mode === 'anual' ? 'flex' : 'none';
+  renderMetas();
+}
+
 function renderMetas() {
-  const mes = document.getElementById('meta-mes').value;
-  const ano = document.getElementById('meta-ano').value;
   const nomesMes = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
-  const anoAtual = 6, mesAtual = 6; // junho/2026 é o mês em andamento
-  const emAndamento = ano === '2026' && parseInt(mes) === mesAtual;
-
-  document.getElementById('meta-sub').textContent =
-    `${nomesMes[parseInt(mes)]}/${ano}${emAndamento ? ' · mês em andamento' : ''}`;
-
-  const dadosAno = DATA.heatmap[ano] || {};
   const lojas = Object.keys(DATA.metas).sort((a,b) => DATA.metas[b] - DATA.metas[a]);
-
   let totalMeta = 0, totalReal = 0, nBateu = 0, nAcima70 = 0, nAbaixo = 0;
   const linhas = [];
 
-  lojas.forEach(loja => {
-    const meta = DATA.metas[loja];
-    const real = dadosAno[loja] ? (dadosAno[loja][mes] || 0) : 0;
-    totalMeta += meta;
-    totalReal += real;
-    const ratio = real / meta;
-    const pct = Math.min(ratio * 100, 100);
-    const pctStr = (ratio * 100).toFixed(1);
-    const bateu = ratio >= 1;
-    const quase = ratio >= 0.7;
-    if (bateu) nBateu++;
-    else if (quase) nAcima70++;
+  if (metaMode === 'mensal') {
+    const mes = document.getElementById('meta-mes').value;
+    const ano = document.getElementById('meta-ano').value;
+    const emAndamento = ano === '2026' && parseInt(mes) === 6;
+    document.getElementById('meta-sub').textContent =
+      `${nomesMes[parseInt(mes)]}/${ano}${emAndamento ? ' · mês em andamento' : ''}`;
+
+    const dadosAno = DATA.heatmap[ano] || {};
+    lojas.forEach(loja => {
+      const meta = DATA.metas[loja];
+      const real = dadosAno[loja] ? (dadosAno[loja][mes] || 0) : 0;
+      totalMeta += meta; totalReal += real;
+      linhas.push({ loja, meta, real });
+    });
+
+  } else {
+    // ANUAL: meta × 11 meses (jan+fev = 1 mês)
+    const ano = document.getElementById('meta-ano-anual').value;
+    const emAndamento = ano === '2026';
+    document.getElementById('meta-sub').textContent =
+      `Ano ${ano} · meta anual = meta mensal × 11 meses${emAndamento ? ' · ano em andamento' : ''}`;
+
+    const dadosAno = DATA.por_ano_loja[ano] || [];
+    const realMap = {};
+    dadosAno.forEach(d => realMap[d.Loja] = d.Valor_RS);
+
+    lojas.forEach(loja => {
+      const meta = DATA.metas[loja] * 11;
+      const real = realMap[loja] || 0;
+      totalMeta += meta; totalReal += real;
+      linhas.push({ loja, meta, real });
+    });
+  }
+
+  // Calcular cores e status
+  linhas.forEach(l => {
+    const ratio = l.real / l.meta;
+    l.pct = Math.min(ratio * 100, 100);
+    l.pctStr = (ratio * 100).toFixed(1);
+    l.bateu = ratio >= 1;
+    l.quase = ratio >= 0.7;
+    if (l.bateu) nBateu++;
+    else if (l.quase) nAcima70++;
     else nAbaixo++;
-
-    const cor = bateu ? '#2ecc71' : quase ? '#f5a623' : '#e74c3c';
-    const bordaCor = bateu ? 'rgba(46,204,113,0.3)' : quase ? 'rgba(245,166,35,0.25)' : 'rgba(231,76,60,0.2)';
-    const bgCard = bateu ? 'rgba(46,204,113,0.06)' : quase ? 'rgba(245,166,35,0.06)' : 'rgba(231,76,60,0.05)';
-    const icone = bateu ? '✅' : quase ? '⚠️' : '🔴';
-    const statusTxt = bateu ? 'Meta atingida' : `Faltam ${fmt(meta - real)}`;
-
-    linhas.push({ loja, meta, real, ratio, pct, pctStr, cor, bordaCor, bgCard, icone, statusTxt });
+    l.cor = l.bateu ? '#2ecc71' : l.quase ? '#f5a623' : '#e74c3c';
+    l.bordaCor = l.bateu ? 'rgba(46,204,113,0.3)' : l.quase ? 'rgba(245,166,35,0.25)' : 'rgba(231,76,60,0.2)';
+    l.bgCard = l.bateu ? 'rgba(46,204,113,0.06)' : l.quase ? 'rgba(245,166,35,0.06)' : 'rgba(231,76,60,0.05)';
+    l.icone = l.bateu ? '✅' : l.quase ? '⚠️' : '🔴';
+    l.statusTxt = l.bateu ? 'Meta atingida' : `Faltam ${fmt(l.meta - l.real)}`;
   });
 
   // Resumo geral
   const pctGeral = (totalReal / totalMeta * 100).toFixed(1);
-  const resumoEl = document.getElementById('meta-resumo');
-  resumoEl.innerHTML = `
+  document.getElementById('meta-resumo').innerHTML = `
     <div style="text-align:center;">
       <div style="font-size:1.5rem;font-weight:800;color:var(--accent);">${pctGeral}%</div>
       <div style="font-size:0.72rem;color:var(--muted);margin-top:2px;">do total geral</div>
