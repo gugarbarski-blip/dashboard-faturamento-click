@@ -164,7 +164,8 @@ def _computar_data(rows):
         q25 = qtd_loja_25.get(loja, 0)
         q26 = qtd_loja_26[loja]
         var = round((q26 / q25 - 1) * 100, 1) if q25 > 0 else None
-        if var is not None:
+        # Exclui lojas com base 2025 muito baixa (lojas novas — % distorce escala)
+        if var is not None and q25 >= 500:
             top_var_os[loja] = {"q2025": q25, "q2026": q26, "var": var}
     top_var_os = dict(sorted(top_var_os.items(), key=lambda x: -x[1]["var"]))
 
@@ -181,7 +182,8 @@ def _computar_data(rows):
         v25 = round(val_loja_25.get(loja, 0), 2)
         v26 = round(val_loja_26[loja], 2)
         var = round((v26 / v25 - 1) * 100, 1) if v25 > 0 else None
-        if var is not None:
+        # Exclui lojas com base 2025 muito baixa (lojas novas — % distorce escala)
+        if var is not None and v25 >= 30000:
             top_var[loja] = {"v2025": v25, "v2026": v26, "var": var}
     top_var = dict(sorted(top_var.items(), key=lambda x: -x[1]["var"]))
 
