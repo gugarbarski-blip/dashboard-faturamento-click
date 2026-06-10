@@ -1,0 +1,5 @@
+.env
+log_*.txt
+__pycache__/
+*.pyc
+debug_page.html
