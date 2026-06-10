@@ -150,9 +150,10 @@ def _computar_data(rows):
         projecao[mes_s] = {str(ano_comp1): v25, f"{ano_atual}_real": real_26, f"{ano_atual}_proj": proj_26}
 
     # ── top_var_os: top variação de quantidade 2025→2026 ─────────────────
+    # Exclui o mês atual pois pode ser parcial
     qtd_loja_25 = defaultdict(int)
     qtd_loja_26 = defaultdict(int)
-    meses_26 = {r["Mes"] for r in lojas_rows if r["Ano"] == ano_atual}
+    meses_26 = {r["Mes"] for r in lojas_rows if r["Ano"] == ano_atual and r["Mes"] < mes_atual}
     for r in lojas_rows:
         if r["Ano"] == ano_atual:
             qtd_loja_26[r["Loja"]] += r["Quantidade"]
