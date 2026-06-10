@@ -155,7 +155,7 @@ def _computar_data(rows):
     qtd_loja_26 = defaultdict(int)
     meses_26 = {r["Mes"] for r in lojas_rows if r["Ano"] == ano_atual and r["Mes"] < mes_atual}
     for r in lojas_rows:
-        if r["Ano"] == ano_atual:
+        if r["Ano"] == ano_atual and r["Mes"] in meses_26:
             qtd_loja_26[r["Loja"]] += r["Quantidade"]
         elif r["Ano"] == ano_comp1 and r["Mes"] in meses_26:
             qtd_loja_25[r["Loja"]] += r["Quantidade"]
@@ -172,7 +172,7 @@ def _computar_data(rows):
     val_loja_25 = defaultdict(float)
     val_loja_26 = defaultdict(float)
     for r in lojas_rows:
-        if r["Ano"] == ano_atual:
+        if r["Ano"] == ano_atual and r["Mes"] in meses_26:
             val_loja_26[r["Loja"]] += r["Valor_RS"]
         elif r["Ano"] == ano_comp1 and r["Mes"] in meses_26:
             val_loja_25[r["Loja"]] += r["Valor_RS"]
