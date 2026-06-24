@@ -1,0 +1,102 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg: #0e1117;
+  --color-card: #1a1f2e;
+  --color-card2: #242938;
+  --color-border: #2e3550;
+  --color-accent: #f5a623;
+  --color-accent-2: #4f8ef7;
+  --color-ok: #2ecc71;
+  --color-warn: #f1c40f;
+  --color-crit: #e74c3c;
+  --color-muted: #8892a4;
+  --color-ink: #e8eaf0;
+
+  --font-sans: "Segoe UI", system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbar discreto para a esteira */
+.scroll-thin::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+.scroll-thin::-webkit-scrollbar-thumb {
+  background: #2e3550;
+  border-radius: 6px;
+}
+.scroll-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Pulso de alerta para OS aguardando coleta */
+@keyframes pulso-alerta {
+  0% {
+    box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(245, 166, 35, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(245, 166, 35, 0);
+  }
+}
+.pulso-alerta {
+  animation: pulso-alerta 1.8s infinite;
+}
+
+@keyframes sino {
+  0%,
+  100% {
+    transform: rotate(0);
+  }
+  20% {
+    transform: rotate(14deg);
+  }
+  40% {
+    transform: rotate(-12deg);
+  }
+  60% {
+    transform: rotate(8deg);
+  }
+  80% {
+    transform: rotate(-6deg);
+  }
+}
+.sino {
+  animation: sino 1.4s ease-in-out infinite;
+  transform-origin: top center;
+  display: inline-block;
+}
+
+@keyframes entrada {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.entrada {
+  animation: entrada 0.18s ease-out;
+}

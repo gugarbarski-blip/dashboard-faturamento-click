@@ -1,5 +1,9 @@
+node_modules
+dist
+dist-ssr
+*.local
 .env
-log_*.txt
-__pycache__/
-*.pyc
-debug_page.html
+.env.local
+.vercel
+.DS_Store
+*.log
