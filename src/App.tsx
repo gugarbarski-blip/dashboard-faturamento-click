@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import type { OS } from './lib/types'
 import { useStore } from './lib/store'
+import { useAuth } from './lib/auth'
 import { useAlertaColeta, usePref } from './lib/hooks'
 import { destravarAudio } from './lib/som'
 import { Esteira } from './components/Esteira'
@@ -15,6 +16,7 @@ type View = 'esteira' | 'agendadas' | 'resumo' | 'setores'
 
 export default function App() {
   const store = useStore()
+  const { authEnabled, user, sair } = useAuth()
   const [view, setView] = useState<View>('esteira')
   const [novaOS, setNovaOS] = useState(false)
   const [detalheId, setDetalheId] = useState<string | null>(null)
@@ -82,6 +84,22 @@ export default function App() {
             <Botao variante="primario" onClick={() => setNovaOS(true)}>
               ➕ Nova OS
             </Botao>
+            {authEnabled && (
+              <div className="flex items-center gap-2">
+                {user?.email && (
+                  <span className="hidden max-w-[12rem] truncate text-xs text-muted md:inline" title={user.email}>
+                    {user.email}
+                  </span>
+                )}
+                <button
+                  onClick={() => void sair()}
+                  className="rounded-lg border border-border bg-card2 px-2.5 py-2 text-sm hover:border-accent/60"
+                  title="Sair"
+                >
+                  🚪 Sair
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

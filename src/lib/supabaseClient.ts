@@ -9,6 +9,12 @@ export const supabaseConfigured = Boolean(url && key)
 // demonstração (localStorage) — útil para testar sem o banco ligado.
 export const supabase: SupabaseClient | null = supabaseConfigured
   ? createClient(url as string, key as string, {
+      auth: {
+        // Mantém o usuário logado entre recarregamentos e renova o token sozinho.
+        persistSession: true,
+        autoRefreshToken: true,
+        detectSessionInUrl: true,
+      },
       realtime: { params: { eventsPerSecond: 5 } },
     })
   : null

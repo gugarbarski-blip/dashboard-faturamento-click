@@ -31,8 +31,9 @@ npm run build    # gera a versão de produção em /dist
 
 ### Conectar o Supabase (tempo real)
 
-1. Crie um projeto no [Supabase](https://supabase.com) e rode o SQL de
-   `supabase/migrations/0001_init.sql` no **SQL Editor**.
+1. Crie um projeto no [Supabase](https://supabase.com) e rode, no **SQL Editor**,
+   os arquivos `supabase/migrations/0001_init.sql` e
+   `supabase/migrations/0002_auth_login.sql` (nessa ordem).
 2. Copie `.env.example` para `.env.local` e preencha:
 
    ```
@@ -41,6 +42,24 @@ npm run build    # gera a versão de produção em /dist
    ```
 
 3. Reinicie o `npm run dev`. O cabeçalho deve mostrar **🟢 Tempo real**.
+
+## 🔐 Login
+
+No modo **🟢 Tempo real** os dados ficam protegidos por RLS e só usuários
+**autenticados** (e-mail + senha) conseguem ver e alterar OS. No modo
+**🟡 Demonstração** (sem Supabase) o login é dispensado e o app abre direto.
+
+### Criar usuários
+
+Não há tela de cadastro — os acessos são criados pelo administrador no
+**SQL Editor** do Supabase com a função `criar_usuario`:
+
+```sql
+select public.criar_usuario('fulano@empresa.com', 'senha-forte');
+```
+
+O usuário já fica confirmado e pode entrar na hora. Para trocar a senha de
+alguém, use **Authentication → Users** no painel do Supabase.
 
 ## Stack
 
